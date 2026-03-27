@@ -1,324 +1,318 @@
-# SDSS Machine Learning Pipeline
+<div align="center">
 
-Proyecto de Machine Learning modular y reproducible construido sobre el dataset astronomico `sdss_sample.csv`.
+# 🔭 SDSS ML Pipeline
 
-El objetivo del proyecto es implementar un pipeline completo que permita:
+<img src="https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?style=for-the-badge&logo=jenkins&logoColor=white" />
+<img src="https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" />
+<img src="https://img.shields.io/badge/pandas-Data-150458?style=for-the-badge&logo=pandas&logoColor=white" />
+<img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 
-- cargar y limpiar datos
-- entrenar varios modelos
-- evaluar sus resultados
-- guardar metricas y visualizaciones
-- dejar la base lista para reproducibilidad y automatizacion en fases posteriores
+<br/>
 
-## Estado Actual
+> **Pipeline de Machine Learning modular y reproducible** sobre datos astronómicos del **Sloan Digital Sky Survey (SDSS)** — contenerizado con Docker y automatizado con Jenkins.
 
-Hasta este punto del proyecto estan cubiertas las siguientes fases:
+</div>
 
-- Fase 1: estructura base, carga del dataset, inspeccion y preprocesamiento inicial
-- Fase 2: clasificacion con KNN (`k=5`)
-- Fase 3: regresion lineal
-- Fase 4: clustering con KMeans (`k=3`)
-- Fase 5: guardado de metricas y graficas en `outputs/`
-- Fase 6: integracion end-to-end en `main.py`
-- Fase 7: Dockerizacion basica del proyecto
-- Fase 8: pipeline basico con Jenkins
+---
 
-Pendiente:
+## 📋 Tabla de Contenidos
 
-- Ajustes finales segun entorno de despliegue
+- [✨ Características](#-características)
+- [🚀 Estado del Proyecto](#-estado-del-proyecto)
+- [🗂️ Estructura del Proyecto](#️-estructura-del-proyecto)
+- [🌌 Dataset](#-dataset)
+- [⚙️ Flujo del Pipeline](#️-flujo-del-pipeline)
+- [🧩 Módulos](#-módulos)
+- [📊 Outputs Generados](#-outputs-generados)
+- [🏃 Cómo Ejecutarlo](#-cómo-ejecutarlo)
+- [🐳 Docker](#-docker)
+- [🤖 Jenkins CI/CD](#-jenkins-cicd)
+- [🏛️ Decisiones de Diseño](#️-decisiones-de-diseño)
 
-## Estructura Del Proyecto
+---
 
-```text
-Parcial/
-|-- main.py
-|-- README.md
-|-- sdss_sample.csv
-|-- outputs/
-|   |-- metrics/
-|   `-- plots/
-`-- src/
-    |-- __init__.py
-    |-- preprocessing.py
-    |-- classification.py
-    |-- regression.py
-    |-- clustering.py
-    `-- reporting.py
+## ✨ Características
+
+| Característica | Detalle |
+|---|---|
+| 🔍 **Clasificación** | K-Nearest Neighbors (`k=5`) con métricas accuracy + confusion matrix |
+| 📈 **Regresión** | Regresión Lineal sobre `redshift` con MSE y R² |
+| 🔵 **Clustering** | KMeans (`k=3`) con Silhouette Score y proyección PCA |
+| 🐳 **Docker** | Pipeline completamente contenerizado y reproducible |
+| 🤖 **Jenkins** | CI/CD automático con validación de artefactos |
+| 📦 **Reportes** | Métricas en JSON + TXT y gráficas en PNG |
+
+---
+
+## 🚀 Estado del Proyecto
+
+```
+✅ Fase 1 — Estructura base, carga del dataset, inspección y preprocesamiento
+✅ Fase 2 — Clasificación con KNN (k=5)
+✅ Fase 3 — Regresión Lineal
+✅ Fase 4 — Clustering con KMeans (k=3)
+✅ Fase 5 — Guardado de métricas y gráficas en outputs/
+✅ Fase 6 — Integración end-to-end en main.py
+✅ Fase 7 — Dockerización del proyecto
+✅ Fase 8 — Pipeline básico con Jenkins
+🔄 Pendiente — Ajustes finales según entorno de despliegue
 ```
 
-## Dataset
+---
 
-El dataset utilizado es `sdss_sample.csv`, con observaciones astronomicas del Sloan Digital Sky Survey.
+## 🗂️ Estructura del Proyecto
 
-Columnas principales:
+```text
+sdss-ml-docker-jenkins/
+├── 📄 main.py                  # Orquestador principal del pipeline
+├── 📄 README.md
+├── 📄 requirements.txt
+├── 🐳 Dockerfile
+├── 📄 .dockerignore
+├── 🤖 Jenkinsfile
+├── 📊 sdss_sample.csv          # Dataset astronómico SDSS
+├── outputs/
+│   ├── metrics/                # Métricas en JSON y TXT
+│   └── plots/                  # Gráficas en PNG
+└── src/
+    ├── __init__.py
+    ├── preprocessing.py        # Carga y limpieza de datos
+    ├── classification.py       # KNN
+    ├── regression.py           # Regresión Lineal
+    ├── clustering.py           # KMeans + PCA
+    └── reporting.py            # Persistencia de resultados
+```
 
-- `u`, `g`, `r`, `i`, `z`: magnitudes fotometricas
-- `redshift`: corrimiento al rojo
-- `class`: clase astronomica real (`Galaxy`, `Star`, `QSO`)
-- `snr_r`: relacion senal/ruido en banda `r`
-- `extinction_r`: extincion en banda `r`
+---
 
-## Flujo Del Pipeline
+## 🌌 Dataset
 
-El flujo esta centralizado en [`main.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/main.py).
+El dataset `sdss_sample.csv` contiene observaciones astronómicas del **Sloan Digital Sky Survey**.
 
-Orden de ejecucion:
+| Columna | Descripción |
+|---|---|
+| `u`, `g`, `r`, `i`, `z` | Magnitudes fotométricas en distintas bandas |
+| `redshift` | Corrimiento al rojo (objetivo de regresión) |
+| `class` | Clase astronómica real: `Galaxy`, `Star`, `QSO` |
+| `snr_r` | Relación señal/ruido en banda `r` |
+| `extinction_r` | Extinción en banda `r` |
 
-1. Cargar el dataset
-2. Inspeccionar los datos originales
-3. Limpiar y preparar el dataset
-4. Ejecutar clasificacion con KNN
-5. Ejecutar regresion lineal
-6. Ejecutar clustering con KMeans
-7. Construir un reporte consolidado en memoria
-8. Guardar metricas y graficas en `outputs/`
+---
 
-Importante:
+## ⚙️ Flujo del Pipeline
 
-- los modelos no guardan archivos directamente
-- cada modulo devuelve resultados al `report`
-- el modulo [`src/reporting.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/src/reporting.py) toma ese `report` y genera los archivos finales
+```mermaid
+flowchart LR
+    A[📂 Cargar Dataset] --> B[🔎 Inspección]
+    B --> C[🧹 Limpieza]
+    C --> D[🤖 KNN\nClasificación]
+    C --> E[📈 Regresión\nLineal]
+    C --> F[🔵 KMeans\nClustering]
+    D --> G[📦 Report\nen Memoria]
+    E --> G
+    F --> G
+    G --> H[💾 Métricas\nJSON/TXT]
+    G --> I[🖼️ Gráficas\nPNG]
+```
 
-## Modulos
+> **Regla clave:** los modelos **no escriben archivos directamente**. Cada módulo retorna resultados al `report` en memoria, y `reporting.py` es el único que persiste en disco.
 
-### [`src/preprocessing.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/src/preprocessing.py)
+---
 
-Contiene la logica inicial de datos:
+## 🧩 Módulos
 
-- `load_data()`
-- `inspect_data()`
-- `clean_data()`
+<details>
+<summary><b>🧹 src/preprocessing.py</b></summary>
 
-Responsabilidades:
+- `load_data()` — Carga el CSV con pandas
+- `inspect_data()` — Revisión de tamaño, tipos, nulos y duplicados
+- `clean_data()` — Conversión de columnas numéricas y validación de columnas obligatorias
 
-- cargar el CSV con `pandas`
-- validar columnas obligatorias
-- revisar tamano, tipos, nulos y duplicados
-- convertir columnas numericas
-- dejar el dataset listo para las siguientes etapas
+</details>
 
-### [`src/classification.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/src/classification.py)
+<details>
+<summary><b>🤖 src/classification.py</b></summary>
 
-Implementa clasificacion supervisada con:
+- **Modelo:** `KNeighborsClassifier` con `k=5`
+- **Escalado:** `StandardScaler`
+- **Métricas:** `accuracy`, `confusion_matrix`
 
-- `KNeighborsClassifier`
-- `k = 5`
-- escalado con `StandardScaler`
+</details>
 
-Metricas:
+<details>
+<summary><b>📈 src/regression.py</b></summary>
 
-- `accuracy`
-- `confusion_matrix`
+- **Modelo:** `LinearRegression` (baseline)
+- **Escalado:** `StandardScaler`
+- **Objetivo:** `redshift`
+- **Métricas:** `MSE`, `R²`
+- **Nota:** puede generar predicciones negativas al no restringir la salida
 
-### [`src/regression.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/src/regression.py)
+</details>
 
-Implementa regresion supervisada con:
+<details>
+<summary><b>🔵 src/clustering.py</b></summary>
 
-- `LinearRegression`
-- escalado con `StandardScaler`
+- **Modelo:** `KMeans` con `k=3`
+- **Escalado:** `StandardScaler`
+- **Evaluación:** `silhouette_score`, tamaño de clusters
+- **Visual:** proyección 2D con PCA y comparación `cluster_vs_class`
 
-Objetivo de regresion:
+</details>
 
-- `redshift`
+<details>
+<summary><b>📦 src/reporting.py</b></summary>
 
-Metricas:
+- Guarda reportes en **JSON** y **TXT**
+- Genera gráficas en **PNG**
+- Separa métricas compactas de datos auxiliares para visualización
 
-- `MSE`
-- `R2`
+</details>
 
-Nota:
+---
 
-- este modelo se usa como baseline
-- puede generar predicciones negativas, porque la regresion lineal no restringe la salida a valores no negativos
-
-### [`src/clustering.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/src/clustering.py)
-
-Implementa clustering no supervisado con:
-
-- `KMeans`
-- `k = 3`
-- escalado con `StandardScaler`
-
-Evaluacion y apoyo visual:
-
-- `silhouette_score`
-- tamano de clusters
-- comparacion `cluster_vs_class`
-- proyeccion 2D con PCA para graficar
-
-### [`src/reporting.py`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/src/reporting.py)
-
-Se encarga de persistir resultados en disco.
-
-Responsabilidades:
-
-- guardar reportes en JSON
-- guardar resumen en TXT
-- generar las graficas en PNG
-- separar metricas compactas de datos auxiliares para visualizacion
-
-## Outputs Generados
-
-Despues de ejecutar el pipeline, el proyecto crea archivos dentro de `outputs/`.
+## 📊 Outputs Generados
 
 ### `outputs/metrics/`
 
-- `pipeline_report.json`: reporte consolidado y compacto del pipeline
-- `summary.txt`: resumen corto de resultados
-- `classification_metrics.json`: metricas de clasificacion
-- `regression_metrics.json`: metricas de regresion
-- `regression_plot_data.json`: datos usados para la grafica de regresion
-- `clustering_metrics.json`: metricas de clustering
-- `clustering_plot_data.json`: datos usados para graficas de clustering
+| Archivo | Contenido |
+|---|---|
+| `pipeline_report.json` | Reporte consolidado del pipeline |
+| `summary.txt` | Resumen corto de resultados |
+| `classification_metrics.json` | Accuracy y confusion matrix |
+| `regression_metrics.json` | MSE y R² |
+| `regression_plot_data.json` | Datos para la gráfica de regresión |
+| `clustering_metrics.json` | Silhouette score y tamaños |
+| `clustering_plot_data.json` | Datos para gráficas de clustering |
 
 ### `outputs/plots/`
 
-- `classification_confusion_matrix.png`
-- `regression_actual_vs_predicted.png`
-- `clustering_projection.png`
-- `clustering_vs_class.png`
+| Archivo | Descripción |
+|---|---|
+| `classification_confusion_matrix.png` | Matriz de confusión KNN |
+| `regression_actual_vs_predicted.png` | Actual vs Predicho |
+| `clustering_projection.png` | Proyección PCA de clusters |
+| `clustering_vs_class.png` | Clusters vs clases reales |
 
-## Como Ejecutarlo
+---
 
-Desde PowerShell, dentro de la carpeta del proyecto:
+## 🏃 Cómo Ejecutarlo
 
-```powershell
-& 'C:\Users\nicoh\AppData\Local\Python\bin\python.exe' -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install pandas scikit-learn matplotlib numpy
+### Instalación local
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Linux / macOS
+# o en Windows PowerShell:
+# .\.venv\Scripts\Activate.ps1
+
+pip install --upgrade pip
+pip install -r requirements.txt
 python main.py
 ```
 
-## Ejecucion Parcial
+### Ejecución parcial (saltar etapas)
 
-Tambien se pueden saltar etapas concretas del pipeline:
-
-```powershell
+```bash
 python main.py --skip-classification
 python main.py --skip-regression
 python main.py --skip-clustering
 ```
 
-## Que Verificar Tras La Ejecucion
+### Verificar resultados
 
-Si el pipeline corre correctamente, deberias observar:
+Después de ejecutar el pipeline deberías encontrar:
 
-- un reporte JSON compacto en consola
-- archivos dentro de `outputs/metrics/`
-- graficas dentro de `outputs/plots/`
+```
+outputs/
+├── metrics/
+│   ├── pipeline_report.json   ✅
+│   ├── summary.txt            ✅
+│   ├── classification_metrics.json
+│   ├── regression_metrics.json
+│   └── clustering_metrics.json
+└── plots/
+    ├── classification_confusion_matrix.png  ✅
+    ├── regression_actual_vs_predicted.png   ✅
+    ├── clustering_projection.png            ✅
+    └── clustering_vs_class.png
+```
 
-Archivos clave para revisar:
+---
 
-- [`outputs/metrics/pipeline_report.json`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/outputs/metrics/pipeline_report.json)
-- [`outputs/metrics/summary.txt`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/outputs/metrics/summary.txt)
-- [`outputs/plots/classification_confusion_matrix.png`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/outputs/plots/classification_confusion_matrix.png)
-- [`outputs/plots/regression_actual_vs_predicted.png`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/outputs/plots/regression_actual_vs_predicted.png)
-- [`outputs/plots/clustering_projection.png`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/outputs/plots/clustering_projection.png)
+## 🐳 Docker
 
-## Decisiones De Diseno
+### Construir la imagen
 
-El proyecto se construyo con estas ideas:
-
-- `main.py` actua como orquestador
-- la logica de negocio esta separada por modulos
-- cada modelo devuelve resultados en memoria
-- el guardado de artefactos se centraliza en un modulo de reporting
-- las metricas y los datos de visualizacion se guardan por separado
-
-Esto hace que el proyecto sea mas facil de mantener, probar y ampliar en siguientes fases.
-
-## Proximas Fases
-
-Los siguientes pasos del proyecto son:
-
-- adaptar Jenkins al entorno real donde vaya a ejecutarse
-
-## Reproducibilidad Con Docker
-
-El proyecto ya incluye:
-
-- [`requirements.txt`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/requirements.txt)
-- [`Dockerfile`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/Dockerfile)
-- [`.dockerignore`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/.dockerignore)
-
-### Construir La Imagen
-
-```powershell
+```bash
 docker build -t sdss-ml-pipeline .
 ```
 
-### Ejecutar El Pipeline En Docker
+### Ejecutar el pipeline
 
-```powershell
+```bash
 docker run --rm sdss-ml-pipeline
 ```
 
-### Ejecutar Y Recuperar Outputs En Tu Maquina
+### Recuperar outputs en tu máquina
 
-```powershell
+```bash
+# Linux / macOS
+docker run --rm -v "$(pwd)/outputs:/app/outputs" sdss-ml-pipeline
+
+# Windows PowerShell
 docker run --rm -v "${PWD}/outputs:/app/outputs" sdss-ml-pipeline
 ```
 
-Esto permite que las metricas y graficas generadas dentro del contenedor queden disponibles en tu carpeta local `outputs/`.
+> Esto monta la carpeta `outputs/` local dentro del contenedor, permitiéndote acceder a métricas y gráficas generadas sin entrar al contenedor.
 
-## Automatizacion Con Jenkins
+---
 
-El proyecto ya incluye [`Jenkinsfile`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/Jenkinsfile).
+## 🤖 Jenkins CI/CD
 
-### Que Es Un Jenkinsfile
+El `Jenkinsfile` define un pipeline automatizado con las siguientes etapas:
 
-Un `Jenkinsfile` es un archivo de texto que define, paso a paso, que debe hacer Jenkins cuando ejecuta tu proyecto.
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Jenkins Pipeline                                            │
+│                                                              │
+│  1. Checkout        → Descarga el código del repo           │
+│  2. Build Image     → docker build -t sdss-ml-pipeline .    │
+│  3. Run Pipeline    → docker run con outputs montado        │
+│  4. Validate        → Verifica que los archivos existan     │
+│  5. Archive         → Guarda artefactos en Jenkins          │
+└──────────────────────────────────────────────────────────────┘
+```
 
-Piensalo como una receta de automatizacion:
+> **Requisito:** el agente de Jenkins debe tener **Docker disponible**.
 
-- de donde sacar el codigo
-- como preparar el entorno
-- que comandos ejecutar
-- como validar que todo salio bien
-- que archivos guardar como artefactos
+Cuando Jenkins ejecuta un build:
+1. Lee el `Jenkinsfile`
+2. Ejecuta cada etapa en orden
+3. Si una etapa falla, detiene el pipeline
+4. Si todo sale bien, los artefactos quedan accesibles desde la interfaz de Jenkins
 
-Jenkins lee ese archivo y ejecuta sus etapas automaticamente.
+---
 
-### Que Hace Este Jenkinsfile
+## 🏛️ Decisiones de Diseño
 
-El pipeline implementado tiene estas etapas:
+| Decisión | Razón |
+|---|---|
+| `main.py` como orquestador | Punto de entrada único y claro |
+| Módulos independientes | Facilita mantenimiento, pruebas y extensión |
+| Resultados en memoria | Desacopla lógica de ML del sistema de archivos |
+| Reporting centralizado | Un único responsable de persistencia en disco |
+| Métricas y datos de visualización separados | Permite consultar métricas sin cargar datos pesados |
 
-1. `Checkout`
-   Descarga el codigo del repositorio en el workspace de Jenkins.
+---
 
-2. `Build Docker Image`
-   Construye la imagen definida en [`Dockerfile`](c:/Users/nicoh/OneDrive/Dev/Univesidad/BigData/Parcial/Dockerfile).
+<div align="center">
 
-3. `Run Pipeline In Docker`
-   Ejecuta el pipeline dentro del contenedor y monta la carpeta `outputs/` del workspace de Jenkins para recuperar los resultados.
+**⭐ Si este proyecto te fue útil, dale una estrella al repositorio ⭐**
 
-4. `Validate Outputs`
-   Verifica que los archivos esperados realmente se hayan generado dentro de `outputs/`.
+<img src="https://img.shields.io/badge/Hecho%20con-❤️%20y%20Python-blue?style=flat-square" />
+<img src="https://img.shields.io/badge/Astronomía-🔭%20SDSS-purple?style=flat-square" />
 
-5. `Archive Artifacts`
-   Guarda los archivos de `outputs/` como artefactos del build para poder descargarlos desde Jenkins.
-
-### Como Funciona En La Practica
-
-Cuando Jenkins lanza un build de este proyecto:
-
-1. lee el `Jenkinsfile`
-2. ejecuta cada etapa en orden
-3. si una etapa falla, detiene el pipeline
-4. si todo sale bien, deja los artefactos accesibles desde la interfaz de Jenkins
-
-Eso significa que Jenkins no entrena modelos "por si solo". Lo que hace es automatizar la ejecucion de tu proyecto usando la imagen Docker del proyecto, de forma repetible y visible para un equipo.
-
-### Nota Sobre El Entorno
-
-El `Jenkinsfile` actual esta preparado para agentes Linux o Windows usando comandos `sh` o `bat` segun corresponda.
-
-Requisito importante:
-
-- el agente de Jenkins debe tener Docker disponible
-
-Si mas adelante tu Jenkins corre dentro de contenedores, nodos especificos o credenciales corporativas, el archivo puede ajustarse a ese entorno sin cambiar el pipeline de Python.
-
-### Cambios
-Va el primero
+</div>
