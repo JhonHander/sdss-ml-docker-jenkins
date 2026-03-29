@@ -105,19 +105,63 @@ El dataset `sdss_sample.csv` contiene observaciones astronómicas del **Sloan Di
 
 ```mermaid
 flowchart LR
-    A[📂 Cargar Dataset] --> B[🔎 Inspección]
-    B --> C[🧹 Limpieza]
-    C --> D[🤖 KNN\nClasificación]
-    C --> E[📈 Regresión\nLineal]
-    C --> F[🔵 KMeans\nClustering]
-    D --> G[📦 Report\nen Memoria]
-    E --> G
-    F --> G
-    G --> H[💾 Métricas\nJSON/TXT]
-    G --> I[🖼️ Gráficas\nPNG]
+        subgraph LocalDev [Tu máquina]
+            LD[Cargar Dataset / Preprocesar / Entrenar]
+            LD --> ReportLocal[Reporte en memoria]
+            ReportLocal --> OutputsLocal[outputs/metrics + outputs/plots]
+        end
+
+        subgraph CI [CI/CD]
+            GH[GitHub]
+            Jenkins[Jenkins]
+            DockerHubOrLocal[Docker build & runtime]
+            Jenkins --> DockerHubOrLocal
+        end
+
+        LD -- "(opcional) build image" --> DockerBuild[Docker build sdss-ml-pipeline]
+        DockerBuild --> DockerRun[docker run -v outputs]
+        DockerRun --> OutputsLocal
+
+        GH -- git push --> Jenkins
+        Jenkins --> DockerBuild
+        DockerBuild --> DockerRun
+        DockerRun --> OutputsCI[Artefactos montados y validados]
+
+        OutputsCI --> Archive[Archivar artefactos en Jenkins]
+
+        classDef small font-size:12px;
+        class LD,ReportLocal,OutputsLocal,GH,Jenkins,DockerBuild,DockerRun,OutputsCI,Archive small;
 ```
 
-> **Regla clave:** los modelos **no escriben archivos directamente**. Cada módulo retorna resultados al `report` en memoria, y `reporting.py` es el único que persiste en disco.
+Explicación breve:
+
+- Local: ejecutas `python main.py` para desarrollo. Genera `outputs/metrics/` y `outputs/plots/` localmente.
+- Docker: construyes la imagen con `docker build -t sdss-ml-pipeline .` y ejecutas el contenedor montando `outputs/` para obtener los mismos artefactos de forma reproducible.
+- Jenkins (CI/CD): al hacer `git push` GitHub notifica a Jenkins (o Jenkins hace polling) y este ejecuta el `Jenkinsfile`:
+    - Clona el repositorio
+    - Construye la imagen Docker
+    - Ejecuta el pipeline dentro del contenedor (con `docker run` y mount de `outputs`)
+    - Valida que los archivos esperados aparecen en `outputs/`
+    - Archiva los artefactos en la interfaz de Jenkins
+
+Configuración y notas rápidas:
+
+- Jenkins puede correr localmente o en Docker. Para Docker:
+
+```bash
+docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+```
+
+- En Jenkins crea un job tipo "Pipeline" con:
+    - Pipeline Definition: "Pipeline script from SCM"
+    - SCM: Git
+    - Repository URL: https://github.com/JhonHander/sdss-ml-docker-jenkins.git
+    - Branch: */main (o la rama que uses)
+    - Script Path: Jenkinsfile
+
+- Recomendación: monta `outputs/` en el contenedor para que Jenkins pueda validar y archivar artefactos sin copiar manualmente.
+
+Regla clave: los modelos **no escriben archivos directamente** — cada módulo retorna resultados al `report` en memoria y `reporting.py` es el único responsable de persistir en disco. Esto facilita ejecutar los mismos pasos localmente, en Docker y automáticamente desde Jenkins.
 
 ---
 
@@ -198,47 +242,90 @@ flowchart LR
 
 ---
 
-## 🏃 Cómo Ejecutarlo
+## 🏃 Cómo funciona el workflow completo
 
-### Instalación local
+1) Ejecución Local (desarrollo y pruebas)
+
+ - Detalle: ejecución manual en tu máquina para desarrollo rápido y debugging.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Linux / macOS
-# o en Windows PowerShell:
-# .\.venv\Scripts\Activate.ps1
-
-pip install --upgrade pip
+cd BigData
 pip install -r requirements.txt
 python main.py
 ```
 
-### Ejecución parcial (saltar etapas)
+Resultado: genera archivos en `outputs/metrics/` y `outputs/plots/`.
+
+2) Ejecución con Docker (reproducibilidad)
+
+ - Detalle: misma ejecución, empaquetada en un contenedor para garantizar que el pipeline
+     funcione igual en cualquier máquina.
 
 ```bash
-python main.py --skip-classification
-python main.py --skip-regression
-python main.py --skip-clustering
+cd BigData
+docker build -t sdss-ml-pipeline .
+docker run --rm -v "${PWD}/outputs:/app/outputs" sdss-ml-pipeline
 ```
 
-### Verificar resultados
+Resultado: los mismos artefactos en `outputs/` pero reproducibles en entornos limpios.
 
-Después de ejecutar el pipeline deberías encontrar:
+3) Ejecución con Jenkins (automatización CI/CD)
 
+Flujo automático:
+
+Push a GitHub → Jenkins detecta el cambio → Ejecuta el `Jenkinsfile` → Genera artefactos
+
+¿Qué debes tener corriendo?
+
+Solo Jenkins. Puede ser:
+
+ - Opción A: Jenkins instalado localmente (Java + Jenkins)
+ - Opción B: Jenkins en Docker:
+
+```bash
+docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
 ```
-outputs/
-├── metrics/
-│   ├── pipeline_report.json   ✅
-│   ├── summary.txt            ✅
-│   ├── classification_metrics.json
-│   ├── regression_metrics.json
-│   └── clustering_metrics.json
-└── plots/
-    ├── classification_confusion_matrix.png  ✅
-    ├── regression_actual_vs_predicted.png   ✅
-    ├── clustering_projection.png            ✅
-    └── clustering_vs_class.png
-```
+
+Pasos para configurar Jenkins:
+
+ - Abrir http://localhost:8080
+ - Crear "New Item" → tipo "Pipeline"
+ - En la configuración del pipeline:
+     - Pipeline Definition: "Pipeline script from SCM"
+     - SCM: Git
+     - Repository URL: https://github.com/JhonHander/sdss-ml-docker-jenkins.git
+     - Branch: */main (o la rama que uses)
+     - Script Path: Jenkinsfile
+ - Guardar y hacer "Build Now"
+
+Después de eso, cada vez que hagas `git push` al repo remoto, Jenkins ejecutará automáticamente:
+
+ - Checkout del código
+ - Instalar dependencias
+ - Validar el dataset
+ - Construir imagen Docker
+ - Ejecutar el pipeline dentro del contenedor
+ - Validar que se generaron los outputs
+ - Archivar los artefactos
+
+Resumen visual
+
+Tu máquina                          GitHub                          Jenkins
+─────────                          ──────                          ───────
+python main.py  ──→  outputs/       
+git push  ──────────→  repo  ──────→  detecta cambio
+                                                                            ──→  ejecuta Jenkinsfile
+                                                                                     ──→  docker build
+                                                                                     ──→  docker run
+                                                                                     ──→  valida outputs
+                                                                                     ──→  guarda artefactos
+
+Tú solo necesitas:
+
+ - Tener Jenkins corriendo (una vez)
+ - Hacer `git push` cuando quieras que se ejecute automáticamente
+ - Revisar los resultados en la interfaz de Jenkins en http://localhost:8080
+
 
 ---
 

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "jenkins-pipeline": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "computedHash": "c7489ef3c9b0d49f702f5200fee648ee2fb7a873d4ec600a0325faefe7aa7002"
+    }
+  }
+}
