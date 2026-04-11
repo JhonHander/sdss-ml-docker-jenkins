@@ -1,4 +1,5 @@
 <div align="center">
+<img src="public/banner-demo-new.png" alt="SDSS banner" style="max-width:100%;height:auto;margin-bottom:12px;" />
 
 # 🔭 SDSS ML Pipeline
 
@@ -249,7 +250,7 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
  - Detalle: ejecución manual en tu máquina para desarrollo rápido y debugging.
 
 ```bash
-cd BigData
+cd sdss-ml-docker-jenkins
 pip install -r requirements.txt
 python main.py
 ```
@@ -262,7 +263,7 @@ Resultado: genera archivos en `outputs/metrics/` y `outputs/plots/`.
      funcione igual en cualquier máquina.
 
 ```bash
-cd BigData
+cd sdss-ml-docker-jenkins
 docker build -t sdss-ml-pipeline .
 docker run --rm -v "${PWD}/outputs:/app/outputs" sdss-ml-pipeline
 ```
@@ -283,7 +284,12 @@ Solo Jenkins. Puede ser:
  - Opción B: Jenkins en Docker:
 
 ```bash
-docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+docker build -t jenkins-docker-cli ./jenkins
+docker run -d --name jenkins \
+    -p 8080:8080 -p 50000:50000 \
+    -v jenkins_home:/var/jenkins_home \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    jenkins-docker-cli
 ```
 
 Pasos para configurar Jenkins:
@@ -298,12 +304,11 @@ Pasos para configurar Jenkins:
      - Script Path: Jenkinsfile
  - Guardar y hacer "Build Now"
 
-Después de eso, cada vez que hagas `git push` al repo remoto, Jenkins ejecutará automáticamente:
+Después de eso, cada vez que hagas `git push` al repo remoto, Jenkins detectará cambios por polling SCM (cada ~2 minutos) y ejecutará automáticamente:
 
  - Checkout del código
- - Instalar dependencias
- - Validar el dataset
  - Construir imagen Docker
+ - Validar el dataset dentro del contenedor
  - Ejecutar el pipeline dentro del contenedor
  - Validar que se generaron los outputs
  - Archivar los artefactos
