@@ -1,7 +1,7 @@
 <div align="center">
 <img src="public/banner-demo-new.png" alt="SDSS banner" style="max-width:100%;height:auto;margin-bottom:12px;" />
 
-# 🔭 SDSS ML Pipeline
+# SDSS ML Pipeline
 
 <img src="https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white" />
 <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
@@ -18,36 +18,36 @@
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
-- [✨ Características](#-características)
-- [🚀 Estado del Proyecto](#-estado-del-proyecto)
-- [🗂️ Estructura del Proyecto](#️-estructura-del-proyecto)
-- [🌌 Dataset](#-dataset)
-- [⚙️ Flujo del Pipeline](#️-flujo-del-pipeline)
-- [🧩 Módulos](#-módulos)
-- [📊 Outputs Generados](#-outputs-generados)
-- [🏃 Cómo Ejecutarlo](#-cómo-ejecutarlo)
-- [🐳 Docker](#-docker)
-- [🤖 Jenkins CI/CD](#-jenkins-cicd)
-- [🏛️ Decisiones de Diseño](#️-decisiones-de-diseño)
+- [Características](#características)
+- [Estado del Proyecto](#estado-del-proyecto)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Dataset](#dataset)
+- [Flujo del Pipeline](#flujo-del-pipeline)
+- [Módulos](#módulos)
+- [Outputs Generados](#outputs-generados)
+- [Cómo Ejecutarlo](#cómo-ejecutarlo)
+- [Docker](#docker)
+- [Jenkins CI/CD](#jenkins-cicd)
+- [Decisiones de Diseño](#decisiones-de-diseño)
 
 ---
 
-## ✨ Características
+## Características
 
 | Característica | Detalle |
 |---|---|
-| 🔍 **Clasificación** | K-Nearest Neighbors (`k=5`) con métricas accuracy + confusion matrix |
-| 📈 **Regresión** | Regresión Lineal sobre `redshift` con MSE y R² |
-| 🔵 **Clustering** | KMeans (`k=3`) con Silhouette Score y proyección PCA |
-| 🐳 **Docker** | Pipeline completamente contenerizado y reproducible |
-| 🤖 **Jenkins** | CI/CD automático con validación de artefactos |
-| 📦 **Reportes** | Métricas en JSON + TXT y gráficas en PNG |
+| Clasificación | K-Nearest Neighbors (`k=5`) con métricas accuracy + confusion matrix |
+| Regresión | Regresión Lineal sobre `redshift` con MSE y R² |
+| Clustering | KMeans (`k=3`) con Silhouette Score y proyección PCA |
+| Docker | Pipeline completamente contenerizado y reproducible |
+| Jenkins | CI/CD automático con validación de artefactos |
+| Reportes | Métricas en JSON + TXT y gráficas en PNG |
 
 ---
 
-## 🚀 Estado del Proyecto
+## Estado del Proyecto
 
 ```
 ✅ Fase 1 — Estructura base, carga del dataset, inspección y preprocesamiento
@@ -63,17 +63,17 @@
 
 ---
 
-## 🗂️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```text
 sdss-ml-docker-jenkins/
-├── 📄 main.py                  # Orquestador principal del pipeline
-├── 📄 README.md
-├── 📄 requirements.txt
-├── 🐳 Dockerfile
-├── 📄 .dockerignore
-├── 🤖 Jenkinsfile
-├── 📊 sdss_sample.csv          # Dataset astronómico SDSS
+├── main.py                  # Orquestador principal del pipeline
+├── README.md
+├── requirements.txt
+├── Dockerfile
+├── .dockerignore
+├── Jenkinsfile
+├── sdss_sample.csv          # Dataset astronómico SDSS
 ├── outputs/
 │   ├── metrics/                # Métricas en JSON y TXT
 │   └── plots/                  # Gráficas en PNG
@@ -88,7 +88,7 @@ sdss-ml-docker-jenkins/
 
 ---
 
-## 🌌 Dataset
+## Dataset
 
 El dataset `sdss_sample.csv` contiene observaciones astronómicas del **Sloan Digital Sky Survey**.
 
@@ -100,9 +100,12 @@ El dataset `sdss_sample.csv` contiene observaciones astronómicas del **Sloan Di
 | `snr_r` | Relación señal/ruido en banda `r` |
 | `extinction_r` | Extinción en banda `r` |
 
+> [!NOTE]
+> El dataset contiene 1000 observaciones distribuidas equitativamente entre las tres clases astronómicas.
+
 ---
 
-## ⚙️ Flujo del Pipeline
+## Flujo del Pipeline
 
 ```mermaid
 flowchart LR
@@ -166,10 +169,10 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 
 ---
 
-## 🧩 Módulos
+## Módulos
 
 <details>
-<summary><b>🧹 src/preprocessing.py</b></summary>
+<summary><b>Preprocesamiento - src/preprocessing.py</b></summary>
 
 - `load_data()` — Carga el CSV con pandas
 - `inspect_data()` — Revisión de tamaño, tipos, nulos y duplicados
@@ -178,7 +181,7 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 </details>
 
 <details>
-<summary><b>🤖 src/classification.py</b></summary>
+<summary><b>Clasificación - src/classification.py</b></summary>
 
 - **Modelo:** `KNeighborsClassifier` con `k=5`
 - **Escalado:** `StandardScaler`
@@ -187,7 +190,7 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 </details>
 
 <details>
-<summary><b>📈 src/regression.py</b></summary>
+<summary><b>Regresión - src/regression.py</b></summary>
 
 - **Modelo:** `LinearRegression` (baseline)
 - **Escalado:** `StandardScaler`
@@ -198,7 +201,7 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 </details>
 
 <details>
-<summary><b>🔵 src/clustering.py</b></summary>
+<summary><b>Clustering - src/clustering.py</b></summary>
 
 - **Modelo:** `KMeans` con `k=3`
 - **Escalado:** `StandardScaler`
@@ -208,7 +211,7 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 </details>
 
 <details>
-<summary><b>📦 src/reporting.py</b></summary>
+<summary><b>Reportes - src/reporting.py</b></summary>
 
 - Guarda reportes en **JSON** y **TXT**
 - Genera gráficas en **PNG**
@@ -218,7 +221,7 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 
 ---
 
-## 📊 Outputs Generados
+## Outputs Generados
 
 ### `outputs/metrics/`
 
@@ -243,11 +246,11 @@ Regla clave: los modelos **no escriben archivos directamente** — cada módulo 
 
 ---
 
-## 🏃 Cómo funciona el workflow completo
+## Cómo Ejecutarlo
 
-1) Ejecución Local (desarrollo y pruebas)
+### 1. Ejecución Local
 
- - Detalle: ejecución manual en tu máquina para desarrollo rápido y debugging.
+Detalle: ejecución manual en tu máquina para desarrollo rápido y debugging.
 
 ```bash
 cd sdss-ml-docker-jenkins
@@ -257,10 +260,9 @@ python main.py
 
 Resultado: genera archivos en `outputs/metrics/` y `outputs/plots/`.
 
-2) Ejecución con Docker (reproducibilidad)
+### 2. Ejecución con Docker
 
- - Detalle: misma ejecución, empaquetada en un contenedor para garantizar que el pipeline
-     funcione igual en cualquier máquina.
+Detalle: misma ejecución, empaquetada en un contenedor para garantizar que el pipeline funcione igual en cualquier máquina.
 
 ```bash
 cd sdss-ml-docker-jenkins
@@ -270,9 +272,12 @@ docker run --rm -v "${PWD}/outputs:/app/outputs" sdss-ml-pipeline
 
 Resultado: los mismos artefactos en `outputs/` pero reproducibles en entornos limpios.
 
-3) Ejecución con Jenkins (automatización CI/CD)
+### 3. Ejecución con Jenkins
 
 Flujo automático:
+
+> [!TIP]
+> Solo necesitas hacer `git push` — Jenkins detectará automáticamente los cambios y ejecutará el pipeline.
 
 Push a GitHub → Jenkins detecta el cambio → Ejecuta el `Jenkinsfile` → Genera artefactos
 
@@ -304,7 +309,10 @@ Pasos para configurar Jenkins:
      - Script Path: Jenkinsfile
  - Guardar y hacer "Build Now"
 
-Después de eso, cada vez que hagas `git push` al repo remoto, Jenkins detectará cambios por polling SCM (cada ~2 minutos) y ejecutará automáticamente:
+> [!WARNING]
+> Asegúrate de que el agente de Jenkins tiene acceso a Docker. El `Jenkinsfile` requiere poder ejecutar contenedores.
+
+Después de eso, cada vez que hagas `git push` al repo remoto, Jenkins detectará cambios por polling SCM y ejecutará automáticamente:
 
  - Checkout del código
  - Construir imagen Docker
@@ -313,28 +321,10 @@ Después de eso, cada vez que hagas `git push` al repo remoto, Jenkins detectar�
  - Validar que se generaron los outputs
  - Archivar los artefactos
 
-Resumen visual
-
-Tu máquina                          GitHub                          Jenkins
-─────────                          ──────                          ───────
-python main.py  ──→  outputs/       
-git push  ──────────→  repo  ──────→  detecta cambio
-                                                                            ──→  ejecuta Jenkinsfile
-                                                                                     ──→  docker build
-                                                                                     ──→  docker run
-                                                                                     ──→  valida outputs
-                                                                                     ──→  guarda artefactos
-
-Tú solo necesitas:
-
- - Tener Jenkins corriendo (una vez)
- - Hacer `git push` cuando quieras que se ejecute automáticamente
- - Revisar los resultados en la interfaz de Jenkins en http://localhost:8080
-
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ### Construir la imagen
 
@@ -358,11 +348,12 @@ docker run --rm -v "$(pwd)/outputs:/app/outputs" sdss-ml-pipeline
 docker run --rm -v "${PWD}/outputs:/app/outputs" sdss-ml-pipeline
 ```
 
+> [!NOTE]
 > Esto monta la carpeta `outputs/` local dentro del contenedor, permitiéndote acceder a métricas y gráficas generadas sin entrar al contenedor.
 
 ---
 
-## 🤖 Jenkins CI/CD
+## Jenkins CI/CD
 
 El `Jenkinsfile` define un pipeline automatizado con las siguientes etapas:
 
@@ -378,7 +369,8 @@ El `Jenkinsfile` define un pipeline automatizado con las siguientes etapas:
 └──────────────────────────────────────────────────────────────┘
 ```
 
-> **Requisito:** el agente de Jenkins debe tener **Docker disponible**.
+> [!WARNING]
+> El agente de Jenkins debe tener **Docker disponible** para ejecutar este pipeline correctamente.
 
 Cuando Jenkins ejecuta un build:
 1. Lee el `Jenkinsfile`
@@ -388,7 +380,7 @@ Cuando Jenkins ejecuta un build:
 
 ---
 
-## 🏛️ Decisiones de Diseño
+## Decisiones de Diseño
 
 | Decisión | Razón |
 |---|---|
