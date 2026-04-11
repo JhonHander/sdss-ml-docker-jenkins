@@ -55,7 +55,8 @@ if df.empty:
     print('Dataset is empty')
     sys.exit(1)
 print(f'Dataset OK: {df.shape[0]} rows, {df.shape[1]} columns')
-print(f'Classes: {df[\"class\"].unique().tolist()}')
+classes = list(df['class'].unique())
+print('Classes: ' + str(classes))
 "
                         '''
                     } else {
