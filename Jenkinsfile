@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -17,49 +21,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh 'pip install -r requirements.txt'
-                    } else {
-                        bat 'pip install -r requirements.txt'
-                    }
-                }
-            }
-        }
-
-        stage('Basic Dataset Tests') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                            python -c "
-                            import pandas as pd
-                            import sys
-
-                            df = pd.read_csv('sdss_sample.csv')
-                            required_cols = ['u', 'g', 'r', 'i', 'z', 'redshift', 'class']
-                            missing = [c for c in required_cols if c not in df.columns]
-                            if missing:
-                                print(f'Missing columns: {missing}')
-                                sys.exit(1)
-                            if df.empty:
-                                print('Dataset is empty')
-                                sys.exit(1)
-                            print(f'Dataset OK: {df.shape[0]} rows, {df.shape[1]} columns')
-                            print(f'Classes: {df[\"class\"].unique().tolist()}')
-                            "
-                        '''
-                    } else {
-                        bat '''
-                            python -c "import pandas as pd; df=pd.read_csv('sdss_sample.csv'); required=['u','g','r','i','z','redshift','class']; missing=[c for c in required if c not in df.columns]; print('Missing: '+str(missing)) if missing else print('OK: '+str(df.shape))"
-                        '''
-                    }
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -70,6 +31,36 @@ pipeline {
                     } else {
                         bat '''
                             docker build -t %IMAGE_NAME% .
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Basic Dataset Tests In Docker') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            docker run --rm "${IMAGE_NAME}" python -c "
+import pandas as pd
+import sys
+df = pd.read_csv('sdss_sample.csv')
+required_cols = ['u', 'g', 'r', 'i', 'z', 'redshift', 'class']
+missing = [c for c in required_cols if c not in df.columns]
+if missing:
+    print(f'Missing columns: {missing}')
+    sys.exit(1)
+if df.empty:
+    print('Dataset is empty')
+    sys.exit(1)
+print(f'Dataset OK: {df.shape[0]} rows, {df.shape[1]} columns')
+print(f'Classes: {df[\"class\"].unique().tolist()}')
+"
+                        '''
+                    } else {
+                        bat '''
+                            docker run --rm %IMAGE_NAME% python -c "import pandas as pd; import sys; df=pd.read_csv('sdss_sample.csv'); required=['u','g','r','i','z','redshift','class']; missing=[c for c in required if c not in df.columns]; print('Missing columns: '+str(missing)) if missing else print('Dataset OK: '+str(df.shape)); sys.exit(1) if missing or df.empty else None"
                         '''
                     }
                 }
